@@ -8,17 +8,21 @@ export default function dbConnect() {
         console.error('Database error: ', db.errorCode);
     }
 
-    request.onupgradeneeded = (event) => {
-        const db = event.target.result;
-        createClassStore(db, "Classes");
-        createTaskStore(db, "Tasks");
-    }
-    
     request.onsuccess = () => {
         console.log('Database connected');
         const db = request.result
         displayData(db, "Classes");
         displayData(db, "Tasks");
     }
+
+    request.onupgradeneeded = (event) => {
+        const db = event.target.result;
+        db.onerror = (event) => {
+            console.error('Database error: ', event.target.errorCode);
+        }
+        createClassStore(db, "Classes");
+        createTaskStore(db, "Tasks");
+    }
+    
 
 }

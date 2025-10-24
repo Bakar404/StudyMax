@@ -1,3 +1,5 @@
+import { displayData } from './displayData.js';
+
 export default function deleteData(db,storeName, id){
     const transaction = db.transaction(storeName, "readwrite")
     const objectStore = transaction.objectStore(storeName);
@@ -5,6 +7,7 @@ export default function deleteData(db,storeName, id){
 
     request.onsuccess = () => {
         console.log(`Record with id ${id} deleted from store ${storeName}.`);
+        displayData(db, storeName);
     };
 
     request.onerror = (event) => {

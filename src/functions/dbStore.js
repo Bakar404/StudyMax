@@ -1,3 +1,5 @@
+import { displayData } from './displayData.js';
+
 export default function storeData(db, storeName, data) {
     const transaction = db.transaction(storeName, 'readwrite');
     transaction.oncomplete = () => {
@@ -11,5 +13,6 @@ export default function storeData(db, storeName, data) {
     const request = store.add(data);
     request.onsuccess = () => {
         console.log('Data added to the store: ', data);
+        displayData(db, storeName);
     }
 }
