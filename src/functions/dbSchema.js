@@ -5,6 +5,7 @@ export function createClassStore(db, storeName = "Classes") {
         objectStore.createIndex("courseDescription","courseDescription", { unique: false, required:false});
         objectStore.createIndex("days","days", { unique: false});
         objectStore.createIndex("time","time", { unique: false});
+        //objectStore.createIndex("userId","userId", { unique: true});
         console.log(`Object store '${storeName}' created.`);
     } else {
         console.log(`Object store '${storeName}' already exists.`);
@@ -16,6 +17,7 @@ export function createTaskStore(db, storeName = "Tasks") {
         objectStore.createIndex("taskTitle","taskTitle", { unique: false});
         objectStore.createIndex("taskDescription","taskDescription", { unique: false, required:false});
         objectStore.createIndex("deadline","deadline", { unique: false});
+        objectStore.createIndex("class","class", { unique: true});
         console.log(`Object store '${storeName}' created.`);
     } else {
         console.log(`Object store '${storeName}' already exists.`);
@@ -28,6 +30,7 @@ export function createDocumentStore(db, storeName = "Documents") {
         objectStore.createIndex("documentTitle","documentTitle", { unique: false});
         objectStore.createIndex("documentType","documentType", { unique: false, required:false});
         objectStore.createIndex("uploadDate","uploadDate", { unique: false});
+        objectStore.createIndex("class","class", { unique: true});
         console.log(`Object store '${storeName}' created.`);
     } else {
         console.log(`Object store '${storeName}' already exists.`);

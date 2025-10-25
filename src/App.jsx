@@ -3,6 +3,15 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
 import dbConnect from './functions/dbConnect.js';
+//import storeData from './functions/dbStore.js';
+//import  clearStore  from './functions/dbDelete.js';
+
+const EXAMPLETASK = {
+  taskTitle: "Finish React Project",
+  taskDescription: "Complete the React project for the client by the end of the week.",
+  deadline: "2024-06-30",
+  class: "React Development"
+}
 
 function App() {
   dbConnect();
