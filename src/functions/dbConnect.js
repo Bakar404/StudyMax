@@ -1,5 +1,5 @@
 import { displayData } from "./dbData.js";
-import { createClassStore, createTaskStore } from "./dbSchema.js";
+import { createClassStore, createTaskStore, createUserStore } from "./dbSchema.js";
 export default function dbConnect() {
     const request = window.indexedDB.open('studyMax', 1);
 
@@ -22,6 +22,7 @@ export default function dbConnect() {
         }
         createClassStore(db, "Classes");
         createTaskStore(db, "Tasks");
+        createUserStore(db, "Users");
     }
     
 
