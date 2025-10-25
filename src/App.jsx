@@ -1,46 +1,28 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import dbConnect from './functions/dbConnect.js';
-//import storeData from './functions/dbStore.js';
-//import  clearStore  from './functions/dbDelete.js';
-
-const EXAMPLETASK = {
-  taskTitle: "Finish React Project",
-  taskDescription: "Complete the React project for the client by the end of the week.",
-  deadline: "2024-06-30",
-  class: "React Development"
-}
+import { useEffect } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import "./App.css";
+import dbConnect from "./functions/dbConnect.js";
+import Welcome from "./components/Welcome";
+import Dashboard from "./components/Dashboard";
+import AddClassPage from "./components/AddClassPage";
+import AddTaskPage from "./components/AddTaskPage";
 
 function App() {
-  dbConnect();
-  const [count, setCount] = useState(0)
+  useEffect(() => {
+    // Initialize database on mount
+    dbConnect();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Welcome />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/add-class" element={<AddClassPage />} />
+        <Route path="/add-task" element={<AddTaskPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
