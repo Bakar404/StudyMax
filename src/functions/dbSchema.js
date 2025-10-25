@@ -22,6 +22,18 @@ export function createTaskStore(db, storeName = "Tasks") {
     }
 }
 
+export function createDocumentStore(db, storeName = "Documents") {
+    if (!db.objectStoreNames.contains(storeName)) {
+        const objectStore = db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });
+        objectStore.createIndex("documentTitle","documentTitle", { unique: false});
+        objectStore.createIndex("documentType","documentType", { unique: false, required:false});
+        objectStore.createIndex("uploadDate","uploadDate", { unique: false});
+        console.log(`Object store '${storeName}' created.`);
+    } else {
+        console.log(`Object store '${storeName}' already exists.`);
+    }
+}
+
 export function createUserStore(db, storeName = "Users") {
     if (!db.objectStoreNames.contains(storeName)) {
         const objectStore = db.createObjectStore(storeName, { keyPath: 'id', autoIncrement: true });

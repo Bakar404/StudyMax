@@ -1,35 +1,50 @@
-import { displayData } from './displayData.js';
-import { db } from './dbConnect.js';
+import  displayData  from './dbData.js';
 
-export default function storeData(database = db, storeName, data) {
-    const transaction = database.transaction(storeName, 'readwrite');
-    transaction.oncomplete = () => {
-        console.log('Transaction completed: database modification finished.');
-    }
-    transaction.onerror = () => {
-        console.error('Transaction not opened due to error: ', transaction.error);
-    }
+export default function storeData(storeName, data) {
+    let db
+    const request = window.indexedDB.open('studyMax', 1);
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        const transaction = db.transaction(storeName, 'readwrite');
+        transaction.oncomplete = () => {
+            console.log('Transaction completed: database modification finished.');
+        }
+        transaction.onerror = () => {
+            console.error('Transaction not opened due to error: ', transaction.error);
+        }
 
-    const store = transaction.objectStore(storeName);
-    const request = store.add(data);
-    request.onsuccess = () => {
-        console.log('Data added to the store: ', data);
-        displayData(database, storeName);
+        const store = transaction.objectStore(storeName);
+        const dbRequest = store.add(data);
+        request.onsuccess = () => {
+            console.log('Data added to the store: ', data);
+            displayData(db, storeName);
+        }
+        request.onerror = () => {
+            console.error('Error adding data to the store: ', dbRequest.error);
+        }
     }
 }
 
-export function storeUserData(database = db, storeName, data) {
-    const transaction = database.transaction(storeName, 'readwrite');
-    transaction.oncomplete = () => {
-        console.log('Transaction completed: database modification finished.');
-    }
-    transaction.onerror = () => {
-        console.error('Transaction not opened due to error: ', transaction.error);
-    }
+export function storeUserData( storeName, data) {
+    let db
+    const request = window.indexedDB.open('studyMax', 1);
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        const transaction = db.transaction(storeName, 'readwrite');
+        transaction.oncomplete = () => {
+            console.log('Transaction completed: database modification finished.');
+        }
+        transaction.onerror = () => {
+            console.error('Transaction not opened due to error: ', transaction.error);
+        }
 
-    const store = transaction.objectStore(storeName);
-    const request = store.add(data);
-    request.onsuccess = () => {
-        console.log('User data added to the store: ', data);
+        const store = transaction.objectStore(storeName);
+        const dbRequest = store.add(data);
+        request.onsuccess = () => {
+            console.log('Data added to the store: ', data);
+        }
+        request.onerror = () => {
+            console.error('Error adding data to the store: ', dbRequest.error);
+        }
     }
 }

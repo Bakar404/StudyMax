@@ -1,5 +1,5 @@
-import { displayData } from "./dbData.js";
-import { createClassStore, createTaskStore, createUserStore } from "./dbSchema.js";
+import  displayData  from "./dbData.js";
+import { createClassStore, createTaskStore, createUserStore, createDocumentStore } from "./dbSchema.js";
 export default function dbConnect() {
     const request = window.indexedDB.open('studyMax', 1);
     let db;
@@ -9,11 +9,12 @@ export default function dbConnect() {
         console.error('Database error: ', db.errorCode);
     }
 
-    request.onsuccess = () => {
+    request.onsuccess = (event) => {
         console.log('Database connected');
-        db = request.result
+        db = event.target.result
         displayData(db, "Classes");
         displayData(db, "Tasks");
+        displayData(db, "Documents");
     }
 
     request.onupgradeneeded = (event) => {
@@ -23,6 +24,7 @@ export default function dbConnect() {
         }
         createClassStore(db, "Classes");
         createTaskStore(db, "Tasks");
+        createDocumentStore(db, "Documents");
         createUserStore(db, "Users");
     }
     
