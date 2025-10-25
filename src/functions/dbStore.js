@@ -1,7 +1,8 @@
 import { displayData } from './displayData.js';
+import { db } from './dbConnect.js';
 
-export default function storeData(db, storeName, data) {
-    const transaction = db.transaction(storeName, 'readwrite');
+export default function storeData(database = db, storeName, data) {
+    const transaction = database.transaction(storeName, 'readwrite');
     transaction.oncomplete = () => {
         console.log('Transaction completed: database modification finished.');
     }
@@ -13,12 +14,12 @@ export default function storeData(db, storeName, data) {
     const request = store.add(data);
     request.onsuccess = () => {
         console.log('Data added to the store: ', data);
-        displayData(db, storeName);
+        displayData(database, storeName);
     }
 }
 
-export function storeUserData(db, storeName, data) {
-    const transaction = db.transaction(storeName, 'readwrite');
+export function storeUserData(database = db, storeName, data) {
+    const transaction = database.transaction(storeName, 'readwrite');
     transaction.oncomplete = () => {
         console.log('Transaction completed: database modification finished.');
     }
