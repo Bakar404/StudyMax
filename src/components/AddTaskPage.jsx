@@ -73,7 +73,7 @@ function AddTaskPage() {
       });
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/dashboard");
       }, 100);
     } catch (err) {
       setError("Failed to add task. Please try again.");
@@ -84,7 +84,7 @@ function AddTaskPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn-back" onClick={() => navigate("/")}>
+        <button className="btn-back" onClick={() => navigate("/dashboard")}>
           ← Back to Dashboard
         </button>
         <h1>Add New Task/Assignment</h1>

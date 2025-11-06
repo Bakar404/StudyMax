@@ -85,7 +85,7 @@ function AddClassPage() {
       });
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/dashboard");
       }, 100);
     } catch (err) {
       setError("Failed to add class. Please try again.");
@@ -96,7 +96,7 @@ function AddClassPage() {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn-back" onClick={() => navigate("/")}>
+        <button className="btn-back" onClick={() => navigate("/dashboard")}>
           ← Back to Dashboard
         </button>
         <h1>Add New Class</h1>
