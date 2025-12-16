@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { addTask, uploadTaskFile } from "../functions/supabaseDb";
-import { validateFile, getAcceptString, getSupportedFormatsText } from "../utils/fileValidation";
+import {
+  validateFile,
+  getAcceptString,
+  getSupportedFormatsText,
+} from "../utils/fileValidation";
 
 function AddTask({ classes, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -33,7 +37,7 @@ function AddTask({ classes, onClose, onSuccess }) {
       const validation = validateFile(selectedFile);
       if (!validation.valid) {
         setError(validation.error);
-        e.target.value = ''; // Reset file input
+        e.target.value = ""; // Reset file input
         return;
       }
       setFile(selectedFile);
@@ -62,20 +66,24 @@ function AddTask({ classes, onClose, onSuccess }) {
 
     setLoading(true);
     try {
-      console.log('Submitting task:', formData);
-      
+      console.log("Submitting task:", formData);
+
       // Upload file first if present
       let fileData = null;
       if (file) {
-        console.log('Uploading file:', file.name);
+        console.log("Uploading file:", file.name);
         const uploadResult = await uploadTaskFile(file);
         if (uploadResult.error) {
-          throw new Error(`File upload failed: ${uploadResult.error.message || uploadResult.error}`);
+          throw new Error(
+            `File upload failed: ${
+              uploadResult.error.message || uploadResult.error
+            }`
+          );
         }
         fileData = uploadResult.data;
-        console.log('File uploaded:', fileData);
+        console.log("File uploaded:", fileData);
       }
-      
+
       const result = await addTask({
         taskTitle: formData.taskTitle,
         taskDescription: formData.taskDescription,
@@ -91,21 +99,21 @@ function AddTask({ classes, onClose, onSuccess }) {
         file_size: file?.size || null,
       });
 
-      console.log('Result:', result);
+      console.log("Result:", result);
 
       if (result.error) {
         const errorMsg = result.error.message || result.error.toString();
         setError(`Failed to add task: ${errorMsg}`);
-        console.error('Error details:', result.error);
+        console.error("Error details:", result.error);
       } else {
-        console.log('Task added successfully!');
+        console.log("Task added successfully!");
         onSuccess();
         onClose();
       }
     } catch (err) {
       const errorMsg = err.message || err.toString();
       setError(`Failed to add task: ${errorMsg}`);
-      console.error('Caught error:', err);
+      console.error("Caught error:", err);
     } finally {
       setLoading(false);
     }
@@ -240,8 +248,12 @@ function AddTask({ classes, onClose, onSuccess }) {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Task'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Adding..." : "Add Task"}
             </button>
           </div>
         </form>

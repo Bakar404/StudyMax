@@ -13,7 +13,14 @@ function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <p>Loading...</p>
       </div>
     );
@@ -31,29 +38,29 @@ function AppContent() {
     <BrowserRouter basename="/StudyMax">
       <Routes>
         <Route path="/" element={<Welcome />} />
-        <Route 
-          path="/dashboard" 
+        <Route
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/add-class" 
+        <Route
+          path="/add-class"
           element={
             <ProtectedRoute>
               <AddClassPage />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/add-task" 
+        <Route
+          path="/add-task"
           element={
             <ProtectedRoute>
               <AddTaskPage />
             </ProtectedRoute>
-          } 
+          }
         />
       </Routes>
     </BrowserRouter>

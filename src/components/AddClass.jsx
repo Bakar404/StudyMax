@@ -75,7 +75,7 @@ function AddClass({ onClose, onSuccess }) {
 
     setLoading(true);
     try {
-      console.log('Submitting class:', formData);
+      console.log("Submitting class:", formData);
       const result = await addClass({
         courseTitle: formData.courseTitle,
         courseDescription: formData.courseDescription,
@@ -84,21 +84,21 @@ function AddClass({ onClose, onSuccess }) {
         time: formData.time,
       });
 
-      console.log('Result:', result);
+      console.log("Result:", result);
 
       if (result.error) {
         const errorMsg = result.error.message || result.error.toString();
         setError(`Failed to add class: ${errorMsg}`);
-        console.error('Error details:', result.error);
+        console.error("Error details:", result.error);
       } else {
-        console.log('Class added successfully!');
+        console.log("Class added successfully!");
         onSuccess();
         onClose();
       }
     } catch (err) {
       const errorMsg = err.message || err.toString();
       setError(`Failed to add class: ${errorMsg}`);
-      console.error('Caught error:', err);
+      console.error("Caught error:", err);
     } finally {
       setLoading(false);
     }
@@ -204,8 +204,12 @@ function AddClass({ onClose, onSuccess }) {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Class'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Adding..." : "Add Class"}
             </button>
           </div>
         </form>

@@ -31,52 +31,58 @@ function Dashboard() {
 
       if (classesResult.data) {
         // Transform Supabase data to match component expectations
-        setClasses(classesResult.data.map(cls => ({
-          id: cls.id,
-          courseTitle: cls.course_title,
-          courseDescription: cls.course_description,
-          color: cls.color,
-          days: cls.days,
-          time: cls.time,
-        })));
+        setClasses(
+          classesResult.data.map((cls) => ({
+            id: cls.id,
+            courseTitle: cls.course_title,
+            courseDescription: cls.course_description,
+            color: cls.color,
+            days: cls.days,
+            time: cls.time,
+          }))
+        );
       }
 
       if (tasksResult.data) {
-        setTasks(tasksResult.data.map(task => ({
-          id: task.id,
-          taskTitle: task.task_title,
-          taskDescription: task.task_description,
-          class: task.class,
-          deadline: task.deadline,
-          workload: task.workload,
-          notes: task.notes,
-          completed: task.completed,
-          createdAt: task.created_at,
-          file_path: task.file_path,
-          file_url: task.file_url,
-          file_name: task.file_name,
-          file_type: task.file_type,
-          file_size: task.file_size,
-        })));
+        setTasks(
+          tasksResult.data.map((task) => ({
+            id: task.id,
+            taskTitle: task.task_title,
+            taskDescription: task.task_description,
+            class: task.class,
+            deadline: task.deadline,
+            workload: task.workload,
+            notes: task.notes,
+            completed: task.completed,
+            createdAt: task.created_at,
+            file_path: task.file_path,
+            file_url: task.file_url,
+            file_name: task.file_name,
+            file_type: task.file_type,
+            file_size: task.file_size,
+          }))
+        );
       }
 
       if (documentsResult.data) {
-        setDocuments(documentsResult.data.map(doc => ({
-          id: doc.id,
-          documentTitle: doc.document_title,
-          documentType: doc.document_type,
-          uploadDate: doc.created_at,
-          class: doc.class,
-          fileData: doc.file_url,
-          fileUrl: doc.file_url,
-          filePath: doc.file_path,
-          fileSize: doc.file_size,
-          file_size: doc.file_size,
-          file_url: doc.file_url,
-        })));
+        setDocuments(
+          documentsResult.data.map((doc) => ({
+            id: doc.id,
+            documentTitle: doc.document_title,
+            documentType: doc.document_type,
+            uploadDate: doc.created_at,
+            class: doc.class,
+            fileData: doc.file_url,
+            fileUrl: doc.file_url,
+            filePath: doc.file_path,
+            fileSize: doc.file_size,
+            file_size: doc.file_size,
+            file_url: doc.file_url,
+          }))
+        );
       }
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error("Error loading data:", error);
     } finally {
       setLoading(false);
     }
@@ -88,12 +94,19 @@ function Dashboard() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/');
+    navigate("/");
   };
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
         <p>Loading your data...</p>
       </div>
     );
@@ -117,10 +130,7 @@ function Dashboard() {
             >
               + Add Task
             </button>
-            <button
-              className="btn btn-secondary"
-              onClick={handleSignOut}
-            >
+            <button className="btn btn-secondary" onClick={handleSignOut}>
               Sign Out
             </button>
           </div>

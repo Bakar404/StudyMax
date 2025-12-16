@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import '../styles.css';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import "../styles.css";
 
 function Signup({ onClose, onSwitchToLogin }) {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    school: '',
-    major: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    firstName: "",
+    lastName: "",
+    school: "",
+    major: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const navigate = useNavigate();
@@ -28,16 +28,16 @@ function Signup({ onClose, onSwitchToLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError("Passwords do not match");
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters long');
+      setError("Password must be at least 6 characters long");
       return;
     }
 
@@ -55,10 +55,10 @@ function Signup({ onClose, onSwitchToLogin }) {
         setError(error.message);
       } else {
         onClose();
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     } catch (err) {
-      setError('An error occurred during sign up');
+      setError("An error occurred during sign up");
       console.error(err);
     } finally {
       setLoading(false);
@@ -168,14 +168,18 @@ function Signup({ onClose, onSwitchToLogin }) {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Creating account...' : 'Sign Up'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Creating account..." : "Sign Up"}
             </button>
           </div>
 
           <div className="form-footer">
             <p>
-              Already have an account?{' '}
+              Already have an account?{" "}
               <button
                 type="button"
                 className="link-button"

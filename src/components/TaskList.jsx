@@ -172,7 +172,8 @@ function TaskList({ tasks, classes, onRefresh }) {
                 )}
                 {taskFileCounts[task.id] > 0 && (
                   <span className="task-file-indicator">
-                    {taskFileCounts[task.id]} file{taskFileCounts[task.id] !== 1 ? 's' : ''} attached
+                    {taskFileCounts[task.id]} file
+                    {taskFileCounts[task.id] !== 1 ? "s" : ""} attached
                   </span>
                 )}
               </div>
@@ -182,8 +183,8 @@ function TaskList({ tasks, classes, onRefresh }) {
       )}
 
       {selectedTask && (
-        <TaskDetail 
-          task={selectedTask} 
+        <TaskDetail
+          task={selectedTask}
           onClose={() => setSelectedTask(null)}
           onUpdate={() => {
             setSelectedTask(null);

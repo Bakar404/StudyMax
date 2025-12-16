@@ -103,12 +103,14 @@ function CalendarView({ tasks, classes }) {
                       <div
                         key={cls.id}
                         className="class-card"
-                        style={{ 
+                        style={{
                           backgroundColor: cls.color,
-                          borderLeft: `4px solid ${cls.color}`
+                          borderLeft: `4px solid ${cls.color}`,
                         }}
                       >
-                        <div className="class-card-title">{cls.course_title || cls.courseTitle}</div>
+                        <div className="class-card-title">
+                          {cls.course_title || cls.courseTitle}
+                        </div>
                         {cls.time && (
                           <div className="class-card-time">{cls.time}</div>
                         )}
@@ -132,7 +134,9 @@ function CalendarView({ tasks, classes }) {
                           className="task-card"
                           style={{ borderLeft: `4px solid ${classColor}` }}
                         >
-                          <div className="task-card-title">{task.task_title || task.taskTitle}</div>
+                          <div className="task-card-title">
+                            {task.task_title || task.taskTitle}
+                          </div>
                           <div className="task-card-class">{task.class}</div>
                           {task.workload && (
                             <div className="task-card-workload">

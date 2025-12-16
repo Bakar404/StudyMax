@@ -1,12 +1,12 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../config/supabaseClient';
+import { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../config/supabaseClient";
 
 const AuthContext = createContext({});
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
@@ -23,7 +23,9 @@ export const AuthProvider = ({ children }) => {
     });
 
     // Listen for changes on auth state (logged in, signed out, etc.)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -43,7 +45,7 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
-      console.error('Error signing up:', error);
+      console.error("Error signing up:", error);
       return { data: null, error };
     }
   };
@@ -57,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       if (error) throw error;
       return { data, error: null };
     } catch (error) {
-      console.error('Error signing in:', error);
+      console.error("Error signing in:", error);
       return { data: null, error };
     }
   };
@@ -67,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
     }
   };
 

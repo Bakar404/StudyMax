@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { deleteClass, uploadDocument, deleteDocument, downloadDocument } from "../functions/supabaseDb";
+import {
+  deleteClass,
+  uploadDocument,
+  deleteDocument,
+  downloadDocument,
+} from "../functions/supabaseDb";
 import ClassDetail from "./ClassDetail";
 
 function ClassList({ classes, documents, onRefresh }) {
@@ -39,8 +44,8 @@ function ClassList({ classes, documents, onRefresh }) {
       }
       onRefresh();
     } catch (error) {
-      console.error('Error uploading files:', error);
-      alert('Failed to upload some files. Please try again.');
+      console.error("Error uploading files:", error);
+      alert("Failed to upload some files. Please try again.");
     } finally {
       setUploadingTo(null);
     }
@@ -55,8 +60,8 @@ function ClassList({ classes, documents, onRefresh }) {
 
   const handleDownloadDocument = async (doc) => {
     // If it's a public URL, just open it
-    if (doc.fileData && doc.fileData.startsWith('http')) {
-      window.open(doc.fileData, '_blank');
+    if (doc.fileData && doc.fileData.startsWith("http")) {
+      window.open(doc.fileData, "_blank");
     } else if (doc.filePath) {
       // Use the download function from supabaseDb
       await downloadDocument(doc.filePath, doc.documentTitle);
@@ -231,8 +236,8 @@ function ClassList({ classes, documents, onRefresh }) {
       )}
 
       {selectedClass && (
-        <ClassDetail 
-          classData={selectedClass} 
+        <ClassDetail
+          classData={selectedClass}
           documents={documents}
           onClose={() => setSelectedClass(null)}
           onUpdate={() => {

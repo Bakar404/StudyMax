@@ -14,7 +14,7 @@ function Welcome() {
   // If user is already logged in, redirect to dashboard
   useEffect(() => {
     if (user) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -39,16 +39,10 @@ function Welcome() {
         <div className="nav-container">
           <div className="logo">StudyMax</div>
           <div className="auth-buttons">
-            <button
-              onClick={handleLoginClick}
-              className="btn btn-login"
-            >
+            <button onClick={handleLoginClick} className="btn btn-login">
               Log In
             </button>
-            <button
-              onClick={handleSignupClick}
-              className="btn btn-signup"
-            >
+            <button onClick={handleSignupClick} className="btn btn-signup">
               Sign Up
             </button>
           </div>
@@ -255,15 +249,15 @@ function Welcome() {
       </footer>
 
       {showLogin && (
-        <Login 
-          onClose={handleCloseModals} 
+        <Login
+          onClose={handleCloseModals}
           onSwitchToSignup={handleSignupClick}
         />
       )}
-      
+
       {showSignup && (
-        <Signup 
-          onClose={handleCloseModals} 
+        <Signup
+          onClose={handleCloseModals}
           onSwitchToLogin={handleLoginClick}
         />
       )}

@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import '../styles.css';
+import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import "../styles.css";
 
 function Login({ onClose, onSwitchToSignup }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
@@ -22,10 +22,10 @@ function Login({ onClose, onSwitchToSignup }) {
         setError(error.message);
       } else {
         onClose();
-        navigate('/dashboard');
+        navigate("/dashboard");
       }
     } catch (err) {
-      setError('An error occurred during login');
+      setError("An error occurred during login");
       console.error(err);
     } finally {
       setLoading(false);
@@ -70,14 +70,18 @@ function Login({ onClose, onSwitchToSignup }) {
           </div>
 
           <div className="form-actions">
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Logging in...' : 'Log In'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? "Logging in..." : "Log In"}
             </button>
           </div>
 
           <div className="form-footer">
             <p>
-              Don't have an account?{' '}
+              Don't have an account?{" "}
               <button
                 type="button"
                 className="link-button"

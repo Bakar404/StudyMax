@@ -1,6 +1,16 @@
 import { useState, useEffect } from "react";
-import { updateTask, addTaskFile, getTaskFiles, deleteTaskFile } from "../functions/supabaseDb";
-import { validateFile, formatFileSize, getAcceptString, getSupportedFormatsText } from "../utils/fileValidation";
+import {
+  updateTask,
+  addTaskFile,
+  getTaskFiles,
+  deleteTaskFile,
+} from "../functions/supabaseDb";
+import {
+  validateFile,
+  formatFileSize,
+  getAcceptString,
+  getSupportedFormatsText,
+} from "../utils/fileValidation";
 
 function TaskDetail({ task, onClose, onUpdate }) {
   const [uploading, setUploading] = useState(false);
@@ -35,7 +45,7 @@ function TaskDetail({ task, onClose, onUpdate }) {
     const validation = validateFile(file);
     if (!validation.valid) {
       setError(validation.error);
-      e.target.value = ''; // Reset file input
+      e.target.value = ""; // Reset file input
       return;
     }
 
@@ -44,22 +54,26 @@ function TaskDetail({ task, onClose, onUpdate }) {
     setSuccess("");
 
     try {
-      console.log('Uploading new file:', file.name);
+      console.log("Uploading new file:", file.name);
       const uploadResult = await addTaskFile(task.id, file);
-      
+
       if (uploadResult.error) {
-        throw new Error(`File upload failed: ${uploadResult.error.message || uploadResult.error}`);
+        throw new Error(
+          `File upload failed: ${
+            uploadResult.error.message || uploadResult.error
+          }`
+        );
       }
 
-      console.log('File uploaded successfully');
+      console.log("File uploaded successfully");
       setSuccess("File uploaded successfully!");
-      
+
       // Reload files list
       await loadTaskFiles();
-      
+
       // Reset input
-      e.target.value = '';
-      
+      e.target.value = "";
+
       setTimeout(() => {
         setSuccess("");
       }, 2000);
@@ -81,10 +95,10 @@ function TaskDetail({ task, onClose, onUpdate }) {
       if (result.error) {
         throw new Error(result.error.message || result.error);
       }
-      
+
       setSuccess("File deleted successfully!");
       await loadTaskFiles();
-      
+
       setTimeout(() => {
         setSuccess("");
       }, 2000);
@@ -109,7 +123,10 @@ function TaskDetail({ task, onClose, onUpdate }) {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content task-detail-modal" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content task-detail-modal"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="modal-header">
           <h2>{task.taskTitle || task.task_title}</h2>
           <button className="btn-close" onClick={onClose}>
@@ -150,7 +167,7 @@ function TaskDetail({ task, onClose, onUpdate }) {
 
           <div className="detail-section files-section">
             <h3>Attached Files ({taskFiles.length})</h3>
-            
+
             {loadingFiles ? (
               <p className="loading-files">Loading files...</p>
             ) : taskFiles.length > 0 ? (
@@ -160,14 +177,20 @@ function TaskDetail({ task, onClose, onUpdate }) {
                     <div className="file-info">
                       <div className="file-name">{file.file_name}</div>
                       <div className="file-meta">
-                        {file.file_type && <span className="file-type">{file.file_type}</span>}
-                        {file.file_size && <span className="file-size">{formatFileSize(file.file_size)}</span>}
+                        {file.file_type && (
+                          <span className="file-type">{file.file_type}</span>
+                        )}
+                        {file.file_size && (
+                          <span className="file-size">
+                            {formatFileSize(file.file_size)}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="file-actions">
-                      <a 
-                        href={file.file_url} 
-                        target="_blank" 
+                      <a
+                        href={file.file_url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         className="btn btn-primary btn-sm"
                       >
@@ -175,7 +198,9 @@ function TaskDetail({ task, onClose, onUpdate }) {
                       </a>
                       <button
                         className="btn btn-danger btn-sm"
-                        onClick={() => handleDeleteFile(file.id, file.file_path)}
+                        onClick={() =>
+                          handleDeleteFile(file.id, file.file_path)
+                        }
                         title="Delete file"
                       >
                         Delete
@@ -195,9 +220,9 @@ function TaskDetail({ task, onClose, onUpdate }) {
                   onChange={handleFileUpload}
                   disabled={uploading}
                   accept={getAcceptString()}
-                  style={{ display: 'none' }}
+                  style={{ display: "none" }}
                 />
-                <button 
+                <button
                   className="btn btn-secondary"
                   disabled={uploading}
                   onClick={(e) => {

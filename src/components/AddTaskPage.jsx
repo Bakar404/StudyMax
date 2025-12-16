@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { addTask, getClasses, uploadTaskFile } from "../functions/supabaseDb";
-import { validateFile, getAcceptString, getSupportedFormatsText } from "../utils/fileValidation";
+import {
+  validateFile,
+  getAcceptString,
+  getSupportedFormatsText,
+} from "../utils/fileValidation";
 import "./Dashboard.css";
 
 function AddTaskPage() {
@@ -30,14 +34,16 @@ function AddTaskPage() {
     try {
       const result = await getClasses();
       if (result.data) {
-        setClasses(result.data.map(cls => ({
-          id: cls.id,
-          courseTitle: cls.course_title,
-          courseDescription: cls.course_description,
-          color: cls.color,
-          days: cls.days,
-          time: cls.time,
-        })));
+        setClasses(
+          result.data.map((cls) => ({
+            id: cls.id,
+            courseTitle: cls.course_title,
+            courseDescription: cls.course_description,
+            color: cls.color,
+            days: cls.days,
+            time: cls.time,
+          }))
+        );
       }
     } catch (err) {
       console.error("Error loading classes:", err);
@@ -59,7 +65,7 @@ function AddTaskPage() {
       const validation = validateFile(selectedFile);
       if (!validation.valid) {
         setError(validation.error);
-        e.target.value = ''; // Reset file input
+        e.target.value = ""; // Reset file input
         return;
       }
       setFile(selectedFile);
@@ -96,15 +102,19 @@ function AddTaskPage() {
       // Upload file first if present
       let fileData = null;
       if (file) {
-        console.log('Uploading file:', file.name);
+        console.log("Uploading file:", file.name);
         const uploadResult = await uploadTaskFile(file);
         if (uploadResult.error) {
-          throw new Error(`File upload failed: ${uploadResult.error.message || uploadResult.error}`);
+          throw new Error(
+            `File upload failed: ${
+              uploadResult.error.message || uploadResult.error
+            }`
+          );
         }
         fileData = uploadResult.data;
-        console.log('File uploaded:', fileData);
+        console.log("File uploaded:", fileData);
       }
-      
+
       const result = await addTask({
         task_title: formData.taskTitle,
         task_description: formData.taskDescription,
@@ -123,9 +133,10 @@ function AddTaskPage() {
       console.log("Result:", result);
 
       if (result.error) {
-        const errorMsg = typeof result.error === 'string' 
-          ? result.error 
-          : result.error.message || JSON.stringify(result.error);
+        const errorMsg =
+          typeof result.error === "string"
+            ? result.error
+            : result.error.message || JSON.stringify(result.error);
         throw new Error(errorMsg);
       }
 
@@ -270,7 +281,11 @@ function AddTaskPage() {
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary" disabled={loading}>
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={loading}
+              >
                 {loading ? "Adding..." : "Add Task"}
               </button>
             </div>
