@@ -1,5 +1,5 @@
 import { useState } from "react";
-import storeData from "../functions/dbStore";
+import { addClass } from "../functions/supabaseDb";
 
 function AddClass({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ function AddClass({ onClose, onSuccess }) {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const daysOfWeek = [
     "Monday",
@@ -58,7 +59,7 @@ function AddClass({ onClose, onSuccess }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -72,8 +73,10 @@ function AddClass({ onClose, onSuccess }) {
       return;
     }
 
+    setLoading(true);
     try {
-      storeData("Classes", {
+      console.log('Submitting class:', formData);
+      const result = await addClass({
         courseTitle: formData.courseTitle,
         courseDescription: formData.courseDescription,
         color: formData.color,
@@ -81,14 +84,23 @@ function AddClass({ onClose, onSuccess }) {
         time: formData.time,
       });
 
-      // Wait a moment for the database to update
-      setTimeout(() => {
+      console.log('Result:', result);
+
+      if (result.error) {
+        const errorMsg = result.error.message || result.error.toString();
+        setError(`Failed to add class: ${errorMsg}`);
+        console.error('Error details:', result.error);
+      } else {
+        console.log('Class added successfully!');
         onSuccess();
         onClose();
-      }, 100);
+      }
     } catch (err) {
-      setError("Failed to add class. Please try again.");
-      console.error(err);
+      const errorMsg = err.message || err.toString();
+      setError(`Failed to add class: ${errorMsg}`);
+      console.error('Caught error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -98,7 +110,7 @@ function AddClass({ onClose, onSuccess }) {
         <div className="modal-header">
           <h2>Add New Class</h2>
           <button className="btn-close" onClick={onClose}>
-            ✕
+            &times;
           </button>
         </div>
 
@@ -192,8 +204,8 @@ function AddClass({ onClose, onSuccess }) {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Add Class
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Class'}
             </button>
           </div>
         </form>

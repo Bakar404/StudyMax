@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { getClasses, getTasks, getDocuments } from "../functions/supabaseDb";
 import CalendarView from "./CalendarView";
 import ClassList from "./ClassList";
 import TaskList from "./TaskList";
@@ -7,57 +9,95 @@ import "./Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
   const [activeView, setActiveView] = useState("calendar");
   const [classes, setClasses] = useState([]);
   const [tasks, setTasks] = useState([]);
   const [documents, setDocuments] = useState([]);
-  const [db, setDb] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const request = window.indexedDB.open("studyMax", 1);
-
-    request.onsuccess = (event) => {
-      const database = event.target.result;
-      setDb(database);
-      loadData(database);
-    };
-
-    request.onerror = (event) => {
-      console.error("Database error: ", event.target.error);
-    };
+    loadData();
   }, []);
 
-  const loadData = (database) => {
-    const classTransaction = database.transaction("Classes", "readonly");
-    const classStore = classTransaction.objectStore("Classes");
-    const classRequest = classStore.getAll();
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const [classesResult, tasksResult, documentsResult] = await Promise.all([
+        getClasses(),
+        getTasks(),
+        getDocuments(),
+      ]);
 
-    classRequest.onsuccess = () => {
-      setClasses(classRequest.result || []);
-    };
+      if (classesResult.data) {
+        // Transform Supabase data to match component expectations
+        setClasses(classesResult.data.map(cls => ({
+          id: cls.id,
+          courseTitle: cls.course_title,
+          courseDescription: cls.course_description,
+          color: cls.color,
+          days: cls.days,
+          time: cls.time,
+        })));
+      }
 
-    const taskTransaction = database.transaction("Tasks", "readonly");
-    const taskStore = taskTransaction.objectStore("Tasks");
-    const taskRequest = taskStore.getAll();
+      if (tasksResult.data) {
+        setTasks(tasksResult.data.map(task => ({
+          id: task.id,
+          taskTitle: task.task_title,
+          taskDescription: task.task_description,
+          class: task.class,
+          deadline: task.deadline,
+          workload: task.workload,
+          notes: task.notes,
+          completed: task.completed,
+          createdAt: task.created_at,
+          file_path: task.file_path,
+          file_url: task.file_url,
+          file_name: task.file_name,
+          file_type: task.file_type,
+          file_size: task.file_size,
+        })));
+      }
 
-    taskRequest.onsuccess = () => {
-      setTasks(taskRequest.result || []);
-    };
-
-    const docTransaction = database.transaction("Documents", "readonly");
-    const docStore = docTransaction.objectStore("Documents");
-    const docRequest = docStore.getAll();
-
-    docRequest.onsuccess = () => {
-      setDocuments(docRequest.result || []);
-    };
+      if (documentsResult.data) {
+        setDocuments(documentsResult.data.map(doc => ({
+          id: doc.id,
+          documentTitle: doc.document_title,
+          documentType: doc.document_type,
+          uploadDate: doc.created_at,
+          class: doc.class,
+          fileData: doc.file_url,
+          fileUrl: doc.file_url,
+          filePath: doc.file_path,
+          fileSize: doc.file_size,
+          file_size: doc.file_size,
+          file_url: doc.file_url,
+        })));
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const refreshData = () => {
-    if (db) {
-      loadData(db);
-    }
+    loadData();
   };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <p>Loading your data...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard">
@@ -76,6 +116,12 @@ function Dashboard() {
               onClick={() => navigate("/add-task")}
             >
               + Add Task
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={handleSignOut}
+            >
+              Sign Out
             </button>
           </div>
         </div>

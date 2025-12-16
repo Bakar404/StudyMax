@@ -1,38 +1,40 @@
-import { useState } from "react";
-import { deleteData } from "../functions/dbDelete";
+import { useState, useEffect } from "react";
+import { deleteTask, updateTask, getTaskFiles } from "../functions/supabaseDb";
+import TaskDetail from "./TaskDetail";
 
 function TaskList({ tasks, classes, onRefresh }) {
   const [filter, setFilter] = useState("all");
   const [selectedClass, setSelectedClass] = useState("all");
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [taskFileCounts, setTaskFileCounts] = useState({});
+
+  useEffect(() => {
+    loadFileCountsForTasks();
+  }, [tasks]);
+
+  const loadFileCountsForTasks = async () => {
+    const counts = {};
+    for (const task of tasks) {
+      const result = await getTaskFiles(task.id);
+      counts[task.id] = result.data?.length || 0;
+    }
+    setTaskFileCounts(counts);
+  };
 
   const getClassColor = (className) => {
     const cls = classes.find((c) => c.courseTitle === className);
     return cls?.color || "#667eea";
   };
 
-  const toggleTaskComplete = (taskId, currentStatus) => {
-    const request = window.indexedDB.open("studyMax", 1);
-    request.onsuccess = (event) => {
-      const db = event.target.result;
-      const transaction = db.transaction("Tasks", "readwrite");
-      const store = transaction.objectStore("Tasks");
-      const getRequest = store.get(taskId);
-
-      getRequest.onsuccess = () => {
-        const task = getRequest.result;
-        task.completed = !currentStatus;
-        const updateRequest = store.put(task);
-        updateRequest.onsuccess = () => {
-          onRefresh();
-        };
-      };
-    };
+  const toggleTaskComplete = async (taskId, currentStatus) => {
+    await updateTask(taskId, { completed: !currentStatus });
+    onRefresh();
   };
 
-  const handleDeleteTask = (taskId) => {
+  const handleDeleteTask = async (taskId) => {
     if (window.confirm("Are you sure you want to delete this task?")) {
-      deleteData("Tasks", taskId);
-      setTimeout(onRefresh, 100);
+      await deleteTask(taskId);
+      onRefresh();
     }
   };
 
@@ -116,16 +118,25 @@ function TaskList({ tasks, classes, onRefresh }) {
                   className={`task-checkbox ${task.completed ? "checked" : ""}`}
                   onClick={() => toggleTaskComplete(task.id, task.completed)}
                 >
-                  {task.completed && "✓"}
+                  {task.completed && ""}
                 </button>
                 <h3 className="task-item-title">{task.taskTitle}</h3>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDeleteTask(task.id)}
-                  title="Delete task"
-                >
-                  Delete
-                </button>
+                <div className="task-actions">
+                  <button
+                    className="btn-view"
+                    onClick={() => setSelectedTask(task)}
+                    title="View details and manage files"
+                  >
+                    View Details
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDeleteTask(task.id)}
+                    title="Delete task"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
 
               <div className="task-item-meta">
@@ -159,10 +170,27 @@ function TaskList({ tasks, classes, onRefresh }) {
                     Notes available
                   </span>
                 )}
+                {taskFileCounts[task.id] > 0 && (
+                  <span className="task-file-indicator">
+                    {taskFileCounts[task.id]} file{taskFileCounts[task.id] !== 1 ? 's' : ''} attached
+                  </span>
+                )}
               </div>
             </div>
           ))}
         </div>
+      )}
+
+      {selectedTask && (
+        <TaskDetail 
+          task={selectedTask} 
+          onClose={() => setSelectedTask(null)}
+          onUpdate={() => {
+            setSelectedTask(null);
+            onRefresh();
+            loadFileCountsForTasks();
+          }}
+        />
       )}
     </div>
   );

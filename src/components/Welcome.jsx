@@ -1,8 +1,37 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import Login from "./Login";
+import Signup from "./Signup";
 import "../styles.css";
 
 function Welcome() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [showLogin, setShowLogin] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
+
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
+
+  const handleLoginClick = () => {
+    setShowLogin(true);
+    setShowSignup(false);
+  };
+
+  const handleSignupClick = () => {
+    setShowSignup(true);
+    setShowLogin(false);
+  };
+
+  const handleCloseModals = () => {
+    setShowLogin(false);
+    setShowSignup(false);
+  };
 
   return (
     <div>
@@ -11,13 +40,13 @@ function Welcome() {
           <div className="logo">StudyMax</div>
           <div className="auth-buttons">
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={handleLoginClick}
               className="btn btn-login"
             >
               Log In
             </button>
             <button
-              onClick={() => navigate("/dashboard")}
+              onClick={handleSignupClick}
               className="btn btn-signup"
             >
               Sign Up
@@ -41,13 +70,13 @@ function Welcome() {
             </p>
             <div className="cta-buttons">
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={handleSignupClick}
                 className="btn btn-signup btn-large"
               >
                 Get Started Free
               </button>
               <button
-                onClick={() => navigate("/dashboard")}
+                onClick={handleLoginClick}
                 className="btn btn-login btn-large"
               >
                 Log In
@@ -177,7 +206,7 @@ function Welcome() {
               </p>
               <div className="cta-buttons-bottom">
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={handleSignupClick}
                   className="btn btn-signup btn-large"
                 >
                   Start Free Today
@@ -224,6 +253,20 @@ function Welcome() {
           </div>
         </div>
       </footer>
+
+      {showLogin && (
+        <Login 
+          onClose={handleCloseModals} 
+          onSwitchToSignup={handleSignupClick}
+        />
+      )}
+      
+      {showSignup && (
+        <Signup 
+          onClose={handleCloseModals} 
+          onSwitchToLogin={handleLoginClick}
+        />
+      )}
     </div>
   );
 }

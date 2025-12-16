@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import storeData from "../functions/dbStore";
+import { addClass } from "../functions/supabaseDb";
 import "./Dashboard.css";
 
 function AddClassPage() {
@@ -14,6 +14,7 @@ function AddClassPage() {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const daysOfWeek = [
     "Monday",
@@ -61,7 +62,7 @@ function AddClassPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -75,8 +76,10 @@ function AddClassPage() {
       return;
     }
 
+    setLoading(true);
     try {
-      storeData("Classes", {
+      console.log('Submitting class:', formData);
+      const result = await addClass({
         courseTitle: formData.courseTitle,
         courseDescription: formData.courseDescription,
         color: formData.color,
@@ -84,12 +87,22 @@ function AddClassPage() {
         time: formData.time,
       });
 
-      setTimeout(() => {
+      console.log('Result:', result);
+
+      if (result.error) {
+        const errorMsg = result.error.message || result.error.toString();
+        setError(`Failed to add class: ${errorMsg}`);
+        console.error('Error details:', result.error);
+      } else {
+        console.log('Class added successfully!');
         navigate("/dashboard");
-      }, 100);
+      }
     } catch (err) {
-      setError("Failed to add class. Please try again.");
-      console.error(err);
+      const errorMsg = err.message || err.toString();
+      setError(`Failed to add class: ${errorMsg}`);
+      console.error('Caught error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -191,11 +204,12 @@ function AddClassPage() {
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => navigate("/")}
+                disabled={loading}
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary">
-                Add Class
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? "Adding..." : "Add Class"}
               </button>
             </div>
           </form>

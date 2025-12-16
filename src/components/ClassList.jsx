@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { deleteData } from "../functions/dbDelete";
-import storeData from "../functions/dbStore";
+import { deleteClass, uploadDocument, deleteDocument, downloadDocument } from "../functions/supabaseDb";
+import ClassDetail from "./ClassDetail";
 
 function ClassList({ classes, documents, onRefresh }) {
   const [expandedClass, setExpandedClass] = useState(null);
   const [uploadingTo, setUploadingTo] = useState(null);
+  const [selectedClass, setSelectedClass] = useState(null);
 
-  const handleDeleteClass = (classId) => {
+  const handleDeleteClass = async (classId) => {
     if (
       window.confirm(
         "Are you sure you want to delete this class? This will not delete associated tasks."
       )
     ) {
-      deleteData("Classes", classId);
-      setTimeout(onRefresh, 100);
+      await deleteClass(classId);
+      onRefresh();
     }
   };
 
@@ -25,43 +26,41 @@ function ClassList({ classes, documents, onRefresh }) {
     return documents.filter((doc) => doc.class === className);
   };
 
-  const handleFileUpload = (className, event) => {
+  const handleFileUpload = async (className, event) => {
     const files = event.target.files;
     if (files.length === 0) return;
 
-    Array.from(files).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        storeData("Documents", {
-          documentTitle: file.name,
-          documentType: file.type,
-          uploadDate: new Date().toISOString(),
-          class: className,
-          fileData: e.target.result,
-          fileSize: file.size,
-        });
-      };
-      reader.readAsDataURL(file);
-    });
+    setUploadingTo(className);
 
-    setTimeout(() => {
+    try {
+      // Upload files one by one
+      for (const file of Array.from(files)) {
+        await uploadDocument(file, className);
+      }
       onRefresh();
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Failed to upload some files. Please try again.');
+    } finally {
       setUploadingTo(null);
-    }, 200);
-  };
-
-  const handleDeleteDocument = (docId) => {
-    if (window.confirm("Are you sure you want to delete this document?")) {
-      deleteData("Documents", docId);
-      setTimeout(onRefresh, 100);
     }
   };
 
-  const downloadDocument = (doc) => {
-    const link = document.createElement("a");
-    link.href = doc.fileData;
-    link.download = doc.documentTitle;
-    link.click();
+  const handleDeleteDocument = async (doc) => {
+    if (window.confirm("Are you sure you want to delete this document?")) {
+      await deleteDocument(doc.id, doc.filePath);
+      onRefresh();
+    }
+  };
+
+  const handleDownloadDocument = async (doc) => {
+    // If it's a public URL, just open it
+    if (doc.fileData && doc.fileData.startsWith('http')) {
+      window.open(doc.fileData, '_blank');
+    } else if (doc.filePath) {
+      // Use the download function from supabaseDb
+      await downloadDocument(doc.filePath, doc.documentTitle);
+    }
   };
 
   const formatFileSize = (bytes) => {
@@ -118,13 +117,22 @@ function ClassList({ classes, documents, onRefresh }) {
                       )}
                     </div>
                   </div>
-                  <button
-                    className="btn-delete"
-                    onClick={() => handleDeleteClass(cls.id)}
-                    title="Delete class"
-                  >
-                    Delete
-                  </button>
+                  <div className="class-actions">
+                    <button
+                      className="btn-view"
+                      onClick={() => setSelectedClass(cls)}
+                      title="View details and manage materials"
+                    >
+                      View Details
+                    </button>
+                    <button
+                      className="btn-delete"
+                      onClick={() => handleDeleteClass(cls.id)}
+                      title="Delete class"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
 
                 {cls.days && cls.days.length > 0 && (
@@ -196,14 +204,14 @@ function ClassList({ classes, documents, onRefresh }) {
                               <div className="document-actions">
                                 <button
                                   className="btn-icon"
-                                  onClick={() => downloadDocument(doc)}
+                                  onClick={() => handleDownloadDocument(doc)}
                                   title="Download"
                                 >
                                   Download
                                 </button>
                                 <button
                                   className="btn-icon"
-                                  onClick={() => handleDeleteDocument(doc.id)}
+                                  onClick={() => handleDeleteDocument(doc)}
                                   title="Delete"
                                 >
                                   Delete
@@ -220,6 +228,18 @@ function ClassList({ classes, documents, onRefresh }) {
             );
           })}
         </div>
+      )}
+
+      {selectedClass && (
+        <ClassDetail 
+          classData={selectedClass} 
+          documents={documents}
+          onClose={() => setSelectedClass(null)}
+          onUpdate={() => {
+            setSelectedClass(null);
+            onRefresh();
+          }}
+        />
       )}
     </div>
   );

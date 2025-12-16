@@ -28,6 +28,13 @@ function CalendarView({ tasks, classes }) {
     });
   };
 
+  const getClassesForDate = (date) => {
+    const dayName = date.toLocaleDateString("en-US", { weekday: "long" });
+    return classes.filter((cls) => {
+      return cls.days && cls.days.includes(dayName);
+    });
+  };
+
   const navigateWeek = (direction) => {
     const newDate = new Date(currentWeekStart);
     newDate.setDate(newDate.getDate() + direction * 7);
@@ -72,6 +79,7 @@ function CalendarView({ tasks, classes }) {
       <div className="week-view">
         {weekDays.map((date, index) => {
           const dayTasks = getTasksForDate(date);
+          const dayClasses = getClassesForDate(date);
           const dayName = date.toLocaleDateString("en-US", {
             weekday: "short",
           });
@@ -88,31 +96,58 @@ function CalendarView({ tasks, classes }) {
               </div>
 
               <div className="day-content">
-                {dayTasks.length === 0 ? (
-                  <div className="empty-day">No tasks</div>
-                ) : (
-                  dayTasks.map((task) => {
-                    const taskClass = classes.find(
-                      (c) => c.courseTitle === task.class
-                    );
-                    const classColor = taskClass?.color || "#667eea";
-
-                    return (
+                {/* Display Classes */}
+                {dayClasses.length > 0 && (
+                  <div className="classes-section">
+                    {dayClasses.map((cls) => (
                       <div
-                        key={task.id}
-                        className="task-card"
-                        style={{ borderLeft: `4px solid ${classColor}` }}
+                        key={cls.id}
+                        className="class-card"
+                        style={{ 
+                          backgroundColor: cls.color,
+                          borderLeft: `4px solid ${cls.color}`
+                        }}
                       >
-                        <div className="task-card-title">{task.taskTitle}</div>
-                        <div className="task-card-class">{task.class}</div>
-                        {task.workload && (
-                          <div className="task-card-workload">
-                            Workload: {task.workload}
-                          </div>
+                        <div className="class-card-title">{cls.course_title || cls.courseTitle}</div>
+                        {cls.time && (
+                          <div className="class-card-time">{cls.time}</div>
                         )}
                       </div>
-                    );
-                  })
+                    ))}
+                  </div>
+                )}
+
+                {/* Display Tasks */}
+                {dayTasks.length > 0 && (
+                  <div className="tasks-section">
+                    {dayTasks.map((task) => {
+                      const taskClass = classes.find(
+                        (c) => (c.courseTitle || c.course_title) === task.class
+                      );
+                      const classColor = taskClass?.color || "#667eea";
+
+                      return (
+                        <div
+                          key={task.id}
+                          className="task-card"
+                          style={{ borderLeft: `4px solid ${classColor}` }}
+                        >
+                          <div className="task-card-title">{task.task_title || task.taskTitle}</div>
+                          <div className="task-card-class">{task.class}</div>
+                          {task.workload && (
+                            <div className="task-card-workload">
+                              {task.workload}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Empty State */}
+                {dayTasks.length === 0 && dayClasses.length === 0 && (
+                  <div className="empty-day">No classes or tasks</div>
                 )}
               </div>
             </div>

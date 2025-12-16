@@ -1,5 +1,6 @@
 import { useState } from "react";
-import storeData from "../functions/dbStore";
+import { addTask, uploadTaskFile } from "../functions/supabaseDb";
+import { validateFile, getAcceptString, getSupportedFormatsText } from "../utils/fileValidation";
 
 function AddTask({ classes, onClose, onSuccess }) {
   const [formData, setFormData] = useState({
@@ -11,7 +12,9 @@ function AddTask({ classes, onClose, onSuccess }) {
     notes: "",
   });
 
+  const [file, setFile] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const workloadOptions = ["Light", "Moderate", "Heavy", "Very Heavy"];
 
@@ -23,7 +26,22 @@ function AddTask({ classes, onClose, onSuccess }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Validate file
+      const validation = validateFile(selectedFile);
+      if (!validation.valid) {
+        setError(validation.error);
+        e.target.value = ''; // Reset file input
+        return;
+      }
+      setFile(selectedFile);
+      setError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -42,8 +60,23 @@ function AddTask({ classes, onClose, onSuccess }) {
       return;
     }
 
+    setLoading(true);
     try {
-      storeData("Tasks", {
+      console.log('Submitting task:', formData);
+      
+      // Upload file first if present
+      let fileData = null;
+      if (file) {
+        console.log('Uploading file:', file.name);
+        const uploadResult = await uploadTaskFile(file);
+        if (uploadResult.error) {
+          throw new Error(`File upload failed: ${uploadResult.error.message || uploadResult.error}`);
+        }
+        fileData = uploadResult.data;
+        console.log('File uploaded:', fileData);
+      }
+      
+      const result = await addTask({
         taskTitle: formData.taskTitle,
         taskDescription: formData.taskDescription,
         class: formData.class,
@@ -51,17 +84,30 @@ function AddTask({ classes, onClose, onSuccess }) {
         workload: formData.workload,
         notes: formData.notes,
         completed: false,
-        createdAt: new Date().toISOString(),
+        file_path: fileData?.path || null,
+        file_url: fileData?.url || null,
+        file_name: file?.name || null,
+        file_type: file?.type || null,
+        file_size: file?.size || null,
       });
 
-      // Wait a moment for the database to update
-      setTimeout(() => {
+      console.log('Result:', result);
+
+      if (result.error) {
+        const errorMsg = result.error.message || result.error.toString();
+        setError(`Failed to add task: ${errorMsg}`);
+        console.error('Error details:', result.error);
+      } else {
+        console.log('Task added successfully!');
         onSuccess();
         onClose();
-      }, 100);
+      }
     } catch (err) {
-      setError("Failed to add task. Please try again.");
-      console.error(err);
+      const errorMsg = err.message || err.toString();
+      setError(`Failed to add task: ${errorMsg}`);
+      console.error('Caught error:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +117,7 @@ function AddTask({ classes, onClose, onSuccess }) {
         <div className="modal-header">
           <h2>Add New Task/Assignment</h2>
           <button className="btn-close" onClick={onClose}>
-            ✕
+            &times;
           </button>
         </div>
 
@@ -165,6 +211,25 @@ function AddTask({ classes, onClose, onSuccess }) {
             />
           </div>
 
+          <div className="form-group">
+            <label htmlFor="file">Attach File (Optional)</label>
+            <input
+              type="file"
+              id="file"
+              name="file"
+              onChange={handleFileChange}
+              accept={getAcceptString()}
+            />
+            {file && (
+              <small className="form-hint">
+                Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
+              </small>
+            )}
+            <small className="form-hint">
+              Max 10MB. Supported: {getSupportedFormatsText()}
+            </small>
+          </div>
+
           {error && <div className="error-message">{error}</div>}
 
           <div className="modal-footer">
@@ -175,8 +240,8 @@ function AddTask({ classes, onClose, onSuccess }) {
             >
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary">
-              Add Task
+            <button type="submit" className="btn btn-primary" disabled={loading}>
+              {loading ? 'Adding...' : 'Add Task'}
             </button>
           </div>
         </form>

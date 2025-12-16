@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import storeData from "../functions/dbStore";
-import { getAllData } from "../functions/dbData";
+import { addTask, getClasses, uploadTaskFile } from "../functions/supabaseDb";
+import { validateFile, getAcceptString, getSupportedFormatsText } from "../utils/fileValidation";
 import "./Dashboard.css";
 
 function AddTaskPage() {
@@ -16,7 +16,9 @@ function AddTaskPage() {
     notes: "",
   });
 
+  const [file, setFile] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const workloadOptions = ["Light", "Moderate", "Heavy", "Very Heavy"];
 
@@ -26,8 +28,17 @@ function AddTaskPage() {
 
   const loadClasses = async () => {
     try {
-      const classesData = await getAllData("Classes");
-      setClasses(classesData);
+      const result = await getClasses();
+      if (result.data) {
+        setClasses(result.data.map(cls => ({
+          id: cls.id,
+          courseTitle: cls.course_title,
+          courseDescription: cls.course_description,
+          color: cls.color,
+          days: cls.days,
+          time: cls.time,
+        })));
+      }
     } catch (err) {
       console.error("Error loading classes:", err);
     }
@@ -41,43 +52,90 @@ function AddTaskPage() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Validate file
+      const validation = validateFile(selectedFile);
+      if (!validation.valid) {
+        setError(validation.error);
+        e.target.value = ''; // Reset file input
+        return;
+      }
+      setFile(selectedFile);
+      setError("");
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
+
+    console.log("Submitting task:", formData);
 
     if (!formData.taskTitle.trim()) {
       setError("Please enter a task title");
+      setLoading(false);
       return;
     }
 
     if (!formData.class) {
       setError("Please select a class");
+      setLoading(false);
       return;
     }
 
     if (!formData.deadline) {
       setError("Please select a deadline");
+      setLoading(false);
       return;
     }
 
     try {
-      storeData("Tasks", {
-        taskTitle: formData.taskTitle,
-        taskDescription: formData.taskDescription,
-        class: formData.class,
+      // Upload file first if present
+      let fileData = null;
+      if (file) {
+        console.log('Uploading file:', file.name);
+        const uploadResult = await uploadTaskFile(file);
+        if (uploadResult.error) {
+          throw new Error(`File upload failed: ${uploadResult.error.message || uploadResult.error}`);
+        }
+        fileData = uploadResult.data;
+        console.log('File uploaded:', fileData);
+      }
+      
+      const result = await addTask({
+        task_title: formData.taskTitle,
+        task_description: formData.taskDescription,
+        class_id: formData.class,
         deadline: formData.deadline,
         workload: formData.workload,
         notes: formData.notes,
         completed: false,
-        createdAt: new Date().toISOString(),
+        file_path: fileData?.path || null,
+        file_url: fileData?.url || null,
+        file_name: file?.name || null,
+        file_type: file?.type || null,
+        file_size: file?.size || null,
       });
 
-      setTimeout(() => {
-        navigate("/dashboard");
-      }, 100);
+      console.log("Result:", result);
+
+      if (result.error) {
+        const errorMsg = typeof result.error === 'string' 
+          ? result.error 
+          : result.error.message || JSON.stringify(result.error);
+        throw new Error(errorMsg);
+      }
+
+      console.log("Task added successfully!");
+      navigate("/dashboard");
     } catch (err) {
-      setError("Failed to add task. Please try again.");
-      console.error(err);
+      const errorMsg = err.message || "Unknown error";
+      setError(`Failed to add task: ${errorMsg}`);
+      console.error("Error adding task:", err);
+      setLoading(false);
     }
   };
 
@@ -182,6 +240,25 @@ function AddTaskPage() {
               />
             </div>
 
+            <div className="form-group">
+              <label htmlFor="file">Attach File (Optional)</label>
+              <input
+                type="file"
+                id="file"
+                name="file"
+                onChange={handleFileChange}
+                accept={getAcceptString()}
+              />
+              {file && (
+                <small className="form-hint">
+                  Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
+                </small>
+              )}
+              <small className="form-hint">
+                Max 10MB. Supported: {getSupportedFormatsText()}
+              </small>
+            </div>
+
             {error && <div className="error-message">{error}</div>}
 
             <div className="form-actions">
@@ -189,11 +266,12 @@ function AddTaskPage() {
                 type="button"
                 className="btn btn-secondary"
                 onClick={() => navigate("/")}
+                disabled={loading}
               >
                 Cancel
               </button>
-              <button type="submit" className="btn btn-primary">
-                Add Task
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? "Adding..." : "Add Task"}
               </button>
             </div>
           </form>
