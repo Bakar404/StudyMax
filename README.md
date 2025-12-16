@@ -1,23 +1,41 @@
 # StudyMax
 
-Your Academic Productivity Partner - A modern web application to help students organize their classes, manage tasks, and store study materials.
+**Members**: Boris Lukyanovich, Ahmed Abdelsalam, Dennes Lopez, Leroy Engmann
 
-## Features
+## Overview
 
-- **User Authentication**: Secure sign up and login with email/password
-- **Class Management**: Create and organize your classes with custom colors and schedules
-- **Task Tracking**: Add assignments and tasks with deadlines and workload indicators
-- **Document Storage**: Upload and manage study materials for each class
-- **Calendar View**: Visualize your schedule and upcoming deadlines
-- **Responsive Design**: Works seamlessly on desktop and mobile devices
+StudyMax is a web application designed for students to manage the workload of all their classes. Built with the purpose of improving productivity through the ability to create custom timetables, organize & prioritize tasks, and ensure you never miss a deadline.
+
+## Core Features
+
+### Classes
+- Create modules that hold all related tasks and materials for each class
+- Set class schedules, descriptions, and custom colors to visually organize tasks
+- Upload and manage files to keep course materials organized and accessible
+
+### Tasks
+- Create tasks with class associations, descriptions, deadlines, and workload indicators
+- Automatic priority calculation based on deadline and workload
+- Visual task management displayed on the calendar dashboard
+
+### Calendar Dashboard
+- View all your tasks in an intuitive calendar interface
+- See at a glance the work due each week, including class information and workload
+- Color-coded tasks for easy identification by class
+
+### Additional Features
+- **User Authentication**: Secure signup and login with Supabase
+- **Document Storage**: Cloud-based file storage for class materials and task attachments
+- **Multi-file Support**: Attach multiple files to tasks and classes
+- **Responsive Design**: Seamless experience on desktop and mobile devices
 
 ## Tech Stack
 
-- **Frontend**: React 19 + Vite
-- **Routing**: React Router DOM
-- **Database & Auth**: Supabase
+- **Frontend**: React 19, Vite
+- **Database**: Supabase (PostgreSQL)
+- **Authentication**: Supabase Auth
 - **Storage**: Supabase Storage
-- **Styling**: CSS3 with custom styles
+- **Styling**: CSS3
 
 ## Prerequisites
 
